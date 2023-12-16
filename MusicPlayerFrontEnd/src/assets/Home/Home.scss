@@ -1,0 +1,62 @@
+.home {
+    font-family: "Roboto", sans-serif;
+    flex-grow: 1;
+    background-image: url("/hill.jpg");
+    background-size:cover;
+    position: relative;
+    min-width: 370px;
+    .clock {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    .recent-play {
+        h2 {
+            margin-bottom: 5px;
+        }
+        color: white;
+        bottom: 0;
+        position: absolute;
+        padding: 20px;
+        width: 100%;
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(10, 320px);
+            gap: 15px;
+            overflow: auto;
+            scrollbar-width: none;
+            .song-element {
+                display: flex;
+                min-width: 280px;
+                cursor: pointer;
+                box-sizing: content-box;
+                padding: 10px 10px;
+                border: 3px solid rgb(255, 255, 255);
+                border-radius: 10px;
+                box-shadow: 0 0 5px red;
+                transition: 0.4s;
+                img {
+                    height: 70px;
+                    width: 70px;
+                    border-radius: 10px;
+                }
+                .text-content {
+                    margin-left: 10px;
+                    .song-name {
+                        font-weight: 700;
+                        font-size: 1.2rem;
+                    }
+                    .artis {
+                        font-size: 1rem;
+                    }
+                }
+            }
+            .song-element:hover {
+                box-shadow: 0 0 5px red, 0 0 25px red;
+            }
+        }
+    }
+    .card-container::-webkit-scrollbar {
+        display: none;
+    }
+}

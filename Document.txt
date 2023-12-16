@@ -1,0 +1,129 @@
+2023/11/28
+
+-Các chức năng chính
++Đăng nhập, đăng kí
++Tạo profile cho user
++User upload nhạc, dowload nhạc đã upload
+Công nghệ : ReactJS, MongoDB , NodeJS, ExpressJs ( MERN Stack)
+Update API 2023/12/6{
+    +auth{
+        POST /api/v1/auth/login
+        POST /api/v1/auth/resgiter
+    }
+    +user{
+        GET /api/v1/user/ (getUserData)
+        PATCH /api/v1/user 
+        DELETE api/v1/user/ (deleteUser)
+    }
+    +userSongs{
+        GET api/v1/user/songs
+        PATHC api/v1/user/song/:id
+        DELETE api/v1/user/songs/:id
+    }
+}
+
+
+2023/12/2
+Ý tưởng thiết kế backend: 
+-database : NoSQL(MongoDB)
+
++ Phương án 1: Gộp hết trong 1 user document(embedded document) sẽ có dạng:
+songObject {
+    _id: ...
+    dateUpload : date
+    name :  string
+    artist : string
+    album : string
+    albumImageUrl : string
+    musicUrl : string
+}
+
+{
+    _id: ...
+    username: string
+    email:  string
+    password:   string (bcrypt)
+    song: array [
+        songObject.....
+    ]
+    recentPlay : array [
+        songObject.....
+    ]
+    playlist : array [
+        {
+            _id: ...
+            playlistName: string
+            song: array[
+                songObject....
+            ]
+        }
+    ]
+    favorite: array [
+        {
+            songObject...
+        }
+    ]
+}
+
++ Phương án 2: referece document ( có thể tạo thêm collection nếu cần mở rộng )
+
+Ưu và nhược điểm của embedded document và referece document:
+-embedded document:
++Ưu điểm
+    - Truy vấn và cập nhật dữ liệu dễ dàng.
+    - Đạt hiệu suất cao trong việc đọc dữ liệu
++Nhược điểm
+    - Kích thước document lớn ảnh hưởng đến việc ghi dữ liệu vì mỗi document không thể vượt quá 16MB
+
+-referece document:
++Ưu điểm 
+    - Có thể cung cấp linh hoạt hơn với truy vấn.
+    - Đạt hiệu suất cao trong việc ghi dữ liệu
++Nhược điểm 
+    - Với các hệ thống có nhiều collections thì truy vấn sẽ khó khăn hơn, yêu cầu nhiều công việc hơn
+
+Quan hệ 1-1 nên dùng embedded;
+Quan hệ 1-N dùng referece
+
+=> Phương án chọn : Phương án 2 (truy vẫn linh hoạt và cần ghi dữ liệu)
+
+
+sẽ phải có 2 server resfulAPI và server file static chứa ablumImage và song 
+
+2023/12/6
+Làm xong kha khá homePage NavBar
+
+viết thêm DELETE api/v1/user (Delete User)
+
+
+2023/12/10
+
+Hoàn thiện backend phần upload file (POST api/v1/user/songs);
+Đang hoàn thiện front end phần Music
+Do số lượng bản ghi không quá nhiều (Đang giới hạn <1000 cho mỗi user) => search frontend
+
+2023/12/11
+Xong DELETE api/v1/songs/:id
+Thêm phần delete vào frontend
+
+2023/12/13
+Hoàn thành giao diện phần Music
+áp dụng thành công delete song vào frontend;
+áp dụng thành công patch song vào frontend;
+
+2023/12/14
+Player mechanic completed (play, back,next,vomlume mute, suffer, playall,autonext,loop hoạt động được khi transfer page);
+Cụ thể mechanic:
+autonext,back,next,suffer chỉ hoạt động khi setplayall của 1 page nào đó 
+nhấn icon volume để mute và unmute
+
+Giờ search sẽ ra match của cả songname và artist
+
+!!!TODO: Remake database music để làm phần song info ở frontend
+!!!TODO tìm hiểu hls và chia nhỏ file nhạc để tối ưu streaming 
+!!!TODO Gộp staticFileServer với ResAPI server + Authenticate static file server
+
+Với việc up 30 bài tốn 1.47Mb document => limit mỗi người 250 bài (chủ yếu tốn do lưu ảnh dạng base64 vào document)
+
+2023/12/15
+Sử dụng Toastify
