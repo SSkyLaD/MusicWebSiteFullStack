@@ -76,7 +76,7 @@ export default function Favorite() {
                     </div>
                 </div>
             </div>
-            {songs == [] ? (
+            {songs && songs.length === 0 ?  (
                 <div className="bottom-section">
                     <Empty />
                 </div>

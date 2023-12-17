@@ -11,9 +11,14 @@ const songSchema = new mongoose.Schema({
         required: true,
         default: defaultAlbumImageBase64,
     },
+    album :{type : String,require: true, default: "Unknown"},
+    year :{type : String,require : true, default :"Uknown"},
+    duration: {type : Number ,require : true, default :"Uknown"},
     musicUrl: { type: String, required: true },
     favorite: { type: Boolean, require: true, default: false },
 });
+
+const Song = mongoose.model("Song", songSchema);
 
 const userDataSchema = new mongoose.Schema({
     username: {
@@ -39,10 +44,13 @@ const userDataSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
-    mostFavorites : [songSchema],
+    mostFavorites: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Song",
+        },
+    ],
 });
-
-
 
 const userSongSchema = new mongoose.Schema({
     owner: {
@@ -50,7 +58,12 @@ const userSongSchema = new mongoose.Schema({
         ref: "UserData",
         required: true,
     },
-    songs: [songSchema],
+    songs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Song",
+        },
+    ],
 });
 
 const userPlaylistsSchema = new mongoose.Schema({
@@ -62,7 +75,12 @@ const userPlaylistsSchema = new mongoose.Schema({
     playlist: [
         {
             title: { type: String },
-            songs: [songSchema],
+            songs: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Song",
+                },
+            ],
         },
     ],
 });
@@ -72,7 +90,7 @@ const userSongs = mongoose.model("UserSong", userSongSchema);
 const userPlaylists = mongoose.model("UserPlaylist", userPlaylistsSchema);
 
 module.exports = {
-    songSchema,
+    Song,
     userData,
     userSongs,
     userPlaylists,

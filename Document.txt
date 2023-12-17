@@ -127,3 +127,10 @@ Với việc up 30 bài tốn 1.47Mb document => limit mỗi người 250 bài (
 
 2023/12/15
 Sử dụng Toastify
+
+2023/12/16
+Tạo api/v1/users/songs/downdload
+
+2023/12/15
+Đập backend đi xây lại (đập cho chuẩn, mong lần sau ko phải đập. Dự là tốn time... cho phép 3 hôm).
+Đập đi xây lại xong , giờ songs của play list chỉ lưu id tham chiếu đến Song => giải quyết được limit 16mb 

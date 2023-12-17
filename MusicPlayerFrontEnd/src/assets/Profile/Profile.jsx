@@ -21,20 +21,18 @@ export default function Profile() {
                     <div className="avatar-container"></div>
                     <h1 className="profile-name">MyAwsomeFrofile</h1>
                     <div className="main">
-                        <div className="member">
+                        <div>
                             <h3>A Member Since:</h3>
                             <p>20/13/2989</p>
                         </div>
-                        <div className="total-songs">
+                        <div >
                             <h3>Number Of Songs:</h3>
-                            <p>
-                                200 <span>/250</span>{" "}
-                            </p>
+                            <p>56</p>
                         </div>
-                        <div className="most-favorite">
-                            <h3>Your Most Favorite Songs:</h3>
-                            <div className="most-favorite-container"></div>
+                        <div >
+                            <h3>Your Top Favorite Songs:</h3>
                         </div>
+                        <div className="top-favorite-container"></div>
                     </div>
                 </div>
             </div>
@@ -44,8 +42,7 @@ export default function Profile() {
 
 function BestMusicCard(songData) {
     const [moreButton, setMoreButton] = React.useState(false);
-    const { setPlaySong} =
-        React.useContext(TokenContext);
+    const { setPlaySong } = React.useContext(TokenContext);
 
     const moreButtonRef = React.useRef();
 

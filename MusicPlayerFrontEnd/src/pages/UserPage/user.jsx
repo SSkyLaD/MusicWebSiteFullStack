@@ -21,8 +21,10 @@ export default function UserPage() {
 
     // xử lý playAll từ các mainComponent
     const handlePlayAll = (arr) => {
-        tracklist.current = arr;
-        setPlaySong(tracklist.current[tracklistIndex.current]);
+        if(arr && arr.length !== 0){
+            tracklist.current = arr;
+            setPlaySong(tracklist.current[tracklistIndex.current]);
+        }
     };
 
     const [tokenData, setTokenData] = React.useState({
