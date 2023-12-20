@@ -1,5 +1,6 @@
 import "./Home.scss";
-import Clock from "../Clock/Clock";
+import axios from "axios";
+import Clock from "./Clock/Clock";
 
 export default function Home() {
     return (

@@ -17,9 +17,7 @@ export default function Music() {
     const [uploadtedFile, setuploadtedFile] = React.useState(null);
     const [searchInput, setSearchInput] = React.useState("");
     const inputFileRef = React.useRef();
-
     //Songs sau khi được load từ API đi qua filter search input rồi render thành các songCard
-
     const getSongs = () => {
         axios
             .get(`${APIurl}/api/v1/users/songs`, {
@@ -76,7 +74,8 @@ export default function Music() {
     let songlistHTML;
 
     if (songs) {
-        const regEx = new RegExp(`\\b${searchInput}`, "gi");
+        const escapedInput = searchInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');// biến đổi các kí tự đặc biệt trong biểu thức chính quy vè dạng string
+        const regEx = new RegExp(`\\b${escapedInput}`, "gi");
         const songlistArr = songs.filter(
             (song) => regEx.test(song.name) || regEx.test(song.artist)
         );
@@ -84,9 +83,8 @@ export default function Music() {
             return (
                 <MusicCard
                     songData={songData}
-                    key={songData._id}
-                    getSongs={getSongs}
-                    control="music"
+                    key={songData._id}                   
+                    controlRender={getSongs}
                     notification={notification}
                 />
             );

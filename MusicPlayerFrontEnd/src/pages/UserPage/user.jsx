@@ -13,10 +13,10 @@ export default function UserPage() {
     const tracklistIndex = React.useRef(0); // lưu index tracklist đang chơi
     // Playsong là bài hát hiện tại đang được play
     const [playSong, setPlaySong] = React.useState({
+        _id: "",
         name: "Unknow",
         artist: "Unknow",
         albumImageBase64: defaultAlbumImageBase64,
-        musicUrl: "",
     });
 
     // xử lý playAll từ các mainComponent
@@ -34,7 +34,7 @@ export default function UserPage() {
 
     // Navigate notoken
     const navigate = useNavigate();
-
+    // Xác thực chưa ổn
     React.useEffect(() => {
         const savedToken = localStorage.getItem("token");
         if (!savedToken) {

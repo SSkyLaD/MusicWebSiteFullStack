@@ -1,11 +1,11 @@
 const { userData, userSongs, userPlaylists, Song } = require("../Models/user");
+require("dotenv").config();
 const { parseFile } = require("music-metadata");
 const bcrypt = require("bcrypt");
-const jsmediatags = require("jsmediatags");
-const { type } = require("os");
-const JWT_SECRET = "asdf1234";
 const fs = require("fs").promises;
-const staticStorageUrl = `D:/LaD/Study/Code/.vscode/AllAboutWebDev/Learning/Project/MusicPlayerFullStack/MusicPlayerStaticFileServer/UserData/userFile`;
+const fsSync = require("fs");
+const staticStorageUrl = process.env.STATIC_STORAGE;
+const CryptoJS = require('crypto-js');
 
 // Chưa test
 const deleteUser = async (req, res) => {
@@ -75,25 +75,6 @@ const getUserSongs = async (req, res) => {
     }
 };
 
-const getUserSongData = async(req,res) =>{
-    try{
-        const {id} = req.user;
-        const {id: songId} = req.params;
-        const userSongsData = await userSongs.findOne({owner:id}).populate("songs");
-        if(!userSongsData){
-            return res.status(404).json({ msg: "cannot find user songs data" });
-        }
-        const song = userSongsData.songs.filter((song)=> song._id.toString()===songId);
-        const filenameParts = song[0].filename.split(".");
-        const type = filenameParts[filenameParts.length - 1];
-        const {name,artist,album,year,duration}= song[0]
-        res.status(200).json({msg: {name,artist,album,year,duration,type}});
-    }
-    catch(err){
-        console.log(err)
-        return res.status(500).json({ msg: err });
-    }
-}
 
 const uploadUserSongs = async (req, res) => {
     try {
@@ -117,8 +98,6 @@ const uploadUserSongs = async (req, res) => {
         }
 
         newSong.filename = filename;
-        const encodedFileName = encodeURIComponent(filename);
-        newSong.musicUrl = `/${req.user.username}/${encodedFileName}`;
 
         //get metadata
         const metadata = await parseFile(path);
@@ -149,6 +128,47 @@ const uploadUserSongs = async (req, res) => {
     }
 };
 
+//WTFISTHIS
+const getUserSong = async (req,res) =>{
+    try{
+        //
+        const { id:songId, user:encryptedUsername } = req.params;
+        username = CryptoJS.enc.Utf8.stringify(CryptoJS.enc.Base64.parse(encryptedUsername))
+        //
+        const song = await Song.findById(songId);
+        if(!song){
+            return res.status(404).json({ msg: "cannot find user song" });
+        }
+        const staticSongPath =
+        staticStorageUrl + "/" + username + "/" + song.filename;
+
+        const stat = fsSync.statSync(staticSongPath);
+        const total = stat.size;
+
+        const range = req.headers.range;
+        const parts = range.replace(/bytes=/, '').split('-');
+        const partialStart = parts[0];
+        const partialEnd = parts[1];
+
+        const start = parseInt(partialStart, 10);
+        const end = partialEnd ? parseInt(partialEnd, 10) : total - 1;
+        const chunksize = (end - start) + 1;
+        const rstream = fsSync.createReadStream(staticSongPath, {start: start, end: end});
+
+        res.writeHead(206, {
+            'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+            'Accept-Ranges': 'bytes', 'Content-Length': chunksize,
+            'Content-Type': 'audio/flac'
+        });
+        rstream.pipe(res);
+    }
+    catch(err){
+        console.log(err)
+        res.status(500).json({ msg: err });
+    }
+}
+//
+
 const deleteUserSong = async (req, res) => {
     try {
         const { id, username } = req.user;
@@ -176,11 +196,10 @@ const getUserFavoriteSongs = async (req, res) => {
         if (!userSongsData) {
             return res.status(404).json({ msg: "Cannot find user songs data" });
         }
-
+        
         const favoriteSongs = userSongsData.songs.filter(
             (song) => song.favorite === true
         );
-
         res.status(200).json({ msg: "Success", data: favoriteSongs });
     } catch (error) {
         console.error(error);
@@ -212,6 +231,7 @@ const updateUserSong = async (req, res) => {
 const downloadUserSong = async (req, res) => {
     try {
         const { id, username } = req.user;
+        console.log(id,username);
         const { id: songId } = req.params;
         const userSongsData = await userSongs.findOne({ owner: id }).populate("songs");
         if (!userSongsData) {
@@ -229,11 +249,11 @@ const downloadUserSong = async (req, res) => {
 };
 
 module.exports = {
-    getUserSongData,
     getUserData,
     deleteUser,
     getUserSongs,
     uploadUserSongs,
+    getUserSong,
     deleteUserSong,
     updateUserSong,
     getUserFavoriteSongs,

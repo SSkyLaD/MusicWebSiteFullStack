@@ -1,14 +1,14 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const UserDataPath =
-    "D:/LaD/Study/Code/.vscode/AllAboutWebDev/Learning/Project/MusicPlayerFullStack/MusicPlayerStaticFileServer/UserData";
+require('dotenv').config()
+const UserDataPath =process.env.STATIC_STORAGE;
+const maxSize = 100* 1000 *1000;
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const userFolderName = req.user.username;
-        const folderName = "userFile";
-        const destination = path.join(UserDataPath, folderName, userFolderName);
+        const destination = path.join(UserDataPath, userFolderName);
 
         if (!fs.existsSync(destination)) {
             try {
@@ -39,6 +39,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage, fileFilter ,limits: { fileSize: maxSize}});
 
 module.exports = { upload };

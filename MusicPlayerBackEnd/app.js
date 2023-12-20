@@ -1,16 +1,21 @@
 const express = require("express");
+require("dotenv").config();
 const authenticateRouter = require("./Routes/auth");
 const userRouter = require("./Routes/user");
 const connectDb = require("./Db/connect");
-const databaseURL = "mongodb://127.0.0.1:27017/MusicWeb";
 const { notFound } = require("./MiddleWares/notFound");
-const PORT = 5000;
 const cors = require("cors");
+const morgan = require('morgan')
+const PORT = process.env.BACKEND_PORT || 5000;
+const databaseURL = process.env.MONGODB_URL;
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-
+app.use(
+    cors({
+        origin: process.env.FRONTEND_ORIGIN,
+    })
+);
+app.use(express.json(),morgan('tiny'));
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authenticateRouter);
 

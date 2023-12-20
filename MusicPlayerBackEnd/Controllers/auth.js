@@ -5,7 +5,8 @@ const {
     userPlaylists,
 } = require("../Models/user");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "asdf1234";
+require('dotenv').config()
+
 
 const register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -52,7 +53,7 @@ const login = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ msg: err.message });
     }
-    const token = jwt.sign({ id, username }, JWT_SECRET, { expiresIn: "30d" }); // giữ payload jwt bé // Phần này quan trọng tìm hiểu kĩ
+    const token = jwt.sign({ id, username }, process.env.JWT_SECRET, { expiresIn: "30d" }); // giữ payload jwt bé // Phần này quan trọng tìm hiểu kĩ
     res.status(200).json({
         msg: "Login successfully",
         data: { token: token, username: username },

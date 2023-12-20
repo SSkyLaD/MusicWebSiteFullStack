@@ -11,7 +11,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Home from "../Home/Home";
 import Music from "../Music/Music";
-import Profile from "../Profile/Profile";
 import Favorite from "../Favorite/Favorite";
 import "./NavBar.scss";
 import { TokenContext } from "../../pages/UserPage/user";
@@ -28,11 +27,6 @@ export default function NavBar({ handleLogout, setMainComponent }) {
     const navHome = () => {
         setMainComponent(<Home />);
         setSelect("Home");
-    };
-
-    const navUser = () => {
-        setMainComponent(<Profile title="this is MainComponent" />);
-        setSelect("User");
     };
 
     const navMusic = () => {
@@ -53,7 +47,6 @@ export default function NavBar({ handleLogout, setMainComponent }) {
                             ? "button-avatar-selected"
                             : "button-avatar"
                     }
-                    onClick={navUser}
                 >
                     <div className="avatar-container">
                         <FontAwesomeIcon icon={faUser} size="xl" width={25} />

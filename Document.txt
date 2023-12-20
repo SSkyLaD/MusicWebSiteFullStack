@@ -119,9 +119,9 @@ nhấn icon volume để mute và unmute
 
 Giờ search sẽ ra match của cả songname và artist
 
-!!!TODO: Remake database music để làm phần song info ở frontend
+!!!TODO: Remake database music để làm phần song info ở frontend(DONE)
 !!!TODO tìm hiểu hls và chia nhỏ file nhạc để tối ưu streaming 
-!!!TODO Gộp staticFileServer với ResAPI server + Authenticate static file server
+!!!TODO Gộp staticFileServer với ResAPI server + Authenticate static file server(half-done)
 
 Với việc up 30 bài tốn 1.47Mb document => limit mỗi người 250 bài (chủ yếu tốn do lưu ảnh dạng base64 vào document)
 
@@ -131,6 +131,14 @@ Sử dụng Toastify
 2023/12/16
 Tạo api/v1/users/songs/downdload
 
-2023/12/15
+2023/12/17
 Đập backend đi xây lại (đập cho chuẩn, mong lần sau ko phải đập. Dự là tốn time... cho phép 3 hôm).
 Đập đi xây lại xong , giờ songs của play list chỉ lưu id tham chiếu đến Song => giải quyết được limit 16mb 
+
+2023/12/18
+Done phần info popup (position: fix , 100vh 100vw)
+2023/12/19
+Test web chạy ổn với môi trường fast 3G (1.3Mbps)
+Gộp server static và server backend,
+Thêm cors origin cho backend => tăng bảo mật
+chưa giải quyết được authenticate server static

@@ -22,7 +22,6 @@ export default function Favorite() {
                 },
             })
             .then((res) => {
-                console.log(res.data.data);
                 setSongs(res.data.data);
             })
             .catch((err) => console.log(err));
@@ -42,8 +41,7 @@ export default function Favorite() {
                 <MusicCard
                     songData={songData}
                     key={songData._id}
-                    getFavoriteSongs={getFavoriteSongs}
-                    control="favorite"
+                    controlRender={getFavoriteSongs}
                 />
             );
         });

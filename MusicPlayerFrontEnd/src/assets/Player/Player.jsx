@@ -13,10 +13,11 @@ import {
 import "./Player.scss";
 import { TokenContext } from "../../pages/UserPage/user";
 import { notification } from "../notification";
-const staticFileServerUrl = import.meta.env.VITE_staticFileServerUrl;
+import CryptoJS from "crypto-js"
+const api = import.meta.env.VITE_APIServerUrl;
 
 export default function Player() {
-    const { playSong, tracklist, tracklistIndex, setPlaySong } =
+    const { tokenData, playSong, tracklist, tracklistIndex, setPlaySong } =
         React.useContext(TokenContext);
     const [playerData, setPlayerData] = React.useState({
         nowtimeInSec: 0,
@@ -50,7 +51,7 @@ export default function Player() {
 
     const handleSuffer = () => {
         if (tracklist.current.length !== 0) {
-            notification('🔀 Suffered')
+            notification("🔀 Suffered");
             const array = [...tracklist.current];
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -115,7 +116,7 @@ export default function Player() {
         return `${formatedMinute}:${formatedSecond}`;
     }
     //Load bài hát ở player
-    function handleLoadMetadata(event) {
+    function handleLoadedMetadata(event) {
         event.target.volume = playerData.volume;
         const songDurationInSec = event.target.duration;
         setPlayerData((prev) => {
@@ -178,28 +179,27 @@ export default function Player() {
         });
     }
 
-    let songSrc = staticFileServerUrl + playSong.musicUrl;
-    if (songSrc === staticFileServerUrl) {
-        songSrc = "";
-    }
-
     // khi playSong thay đổi thì bài hát tự động được nạp vào player và chạy
     React.useEffect(() => {
-        if (songSrc != "") {
-            play();
+        if (playSong._id != "") {
+            //
+            const encryptedData = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(tokenData.username));
+            const filtered = encryptedData.replace(/[^a-zA-Z0-9]/g, '');
+            document.querySelector(".song").src = `${api}/api/v1/users/songs/${playSong._id}/${filtered}`
+            //
             setPlayerData((prev) => {
                 return { ...prev, isPlayed: true };
             });
+            play()
         }
     }, [playSong]);
+
 
     return (
         <div className="player">
             <audio
                 className="song"
-                type="audio/flac"
-                src={songSrc}
-                onLoadedMetadata={handleLoadMetadata}
+                onLoadedMetadata={handleLoadedMetadata}
                 onTimeUpdate={handleTimeUpdate}
                 onEnded={handleTimeEnded}
                 loop={playerData.mode === "loop" ? true : false}
@@ -249,7 +249,7 @@ export default function Player() {
                     <div
                         className="play"
                         onClick={playMusic}
-                        style={{ pointerEvents: songSrc ? "" : "none" }}
+                        style={{ pointerEvents: playSong._id ? "" : "none" }}
                     >
                         <FontAwesomeIcon
                             icon={playerData.isPlayed ? faPause : faPlay}

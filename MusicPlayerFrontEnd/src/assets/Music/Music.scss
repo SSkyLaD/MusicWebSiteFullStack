@@ -111,17 +111,6 @@
         grid-template-columns: repeat(7, 200px);
         justify-content: center;
     }
-    .music-list-container::-webkit-scrollbar {
-        width: 6px;
-    }
-    .music-list-container::-webkit-scrollbar-track {
-        background: transparent;
-        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    }
-    .music-list-container::-webkit-scrollbar-thumb {
-        background: gray;
-        border-radius: 2px;
-    }
 }
 
 @media (max-width: 1860px) {

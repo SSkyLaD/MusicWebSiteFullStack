@@ -14,7 +14,6 @@ const songSchema = new mongoose.Schema({
     album :{type : String,require: true, default: "Unknown"},
     year :{type : String,require : true, default :"Uknown"},
     duration: {type : Number ,require : true, default :"Uknown"},
-    musicUrl: { type: String, required: true },
     favorite: { type: Boolean, require: true, default: false },
 });
 

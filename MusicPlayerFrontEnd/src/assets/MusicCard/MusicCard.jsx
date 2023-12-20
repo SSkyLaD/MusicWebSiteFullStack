@@ -8,11 +8,17 @@ import {
     faHeart,
     faTrash,
     faDownload,
+    faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import "./MusicCard.scss";
 import { TokenContext } from "../../pages/UserPage/user";
-import { successNotification, failedNotification } from "../notification";
-
+import {
+    successNotification,
+    failedNotification,
+    notification,
+} from "../notification";
+import MusicInfo from "./MusicInfo/MusicInfo";
+import DeletePopup from "./DeleteConfirm/DelelePopup";
 const APIurl = import.meta.env.VITE_APIServerUrl;
 
 MusicCard.propTypes = {
@@ -21,29 +27,29 @@ MusicCard.propTypes = {
         name: PropTypes.string.isRequired,
         artist: PropTypes.string.isRequired,
         albumImageBase64: PropTypes.string.isRequired,
-        musicUrl: PropTypes.string.isRequired,
         favorite: PropTypes.bool.isRequired,
     }).isRequired,
     getSongs: PropTypes.func,
     getFavoriteSongs: PropTypes.func,
-    control: PropTypes.string.isRequired,
+    controlRender: PropTypes.func,
 };
 
 export default function MusicCard({
     songData,
-    getSongs,
-    getFavoriteSongs,
-    control,
+    controlRender,
 }) {
     //Control để nhận biết xem component cha là gì để khi delete thì rerender component cha
     const [moreButton, setMoreButton] = React.useState(false);
-    const { setPlaySong, tokenData, tracklist } =
+    const [songInfo, setSongInfo] = React.useState(false);
+    const [deletePopup,setDeletePopup] = React.useState(false);
+
+    const { setPlaySong, tokenData} =
         React.useContext(TokenContext);
 
     const moreButtonRef = React.useRef();
-
     //Setup Download
     const handleFileDownload = (data) => {
+        notification(`Start download: ${data.name} - ${data.artist} `);
         axios
             .get(`${APIurl}/api/v1/users/songs/download/${data._id}`, {
                 headers: {
@@ -52,7 +58,6 @@ export default function MusicCard({
                 responseType: "blob", // Corrected typo
             })
             .then((response) => {
-                console.log(response)
                 const contentType = response.headers["content-type"];
                 const url = window.URL.createObjectURL(
                     new Blob([response.data], {
@@ -67,9 +72,15 @@ export default function MusicCard({
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
+                successNotification(
+                    `Downnload completed: ${data.name} - ${data.artist}`
+                );
             })
             .catch((error) => {
                 console.error("Error downloading file:", error);
+                failedNotification(
+                    `Have error when downloading: ${data.name} - ${data.artist}`
+                );
             });
     };
 
@@ -96,27 +107,7 @@ export default function MusicCard({
                         `${songData.name} - ${songData.artist} added to favorite`
                     );
                 }
-                control === "music" ? getSongs() : getFavoriteSongs();
-            })
-            .catch((error) => {
-                failedNotification("Oops... Something went wrong");
-                console.log(error);
-            });
-    };
-
-    const handleDeleteSong = (id) => {
-        tracklist.current = tracklist.current.filter((song) => song.id !== id);
-        axios
-            .delete(`${APIurl}/api/v1/users/songs/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${tokenData.token}`,
-                },
-            })
-            .then(() => {
-                successNotification(
-                    `${songData.name} - ${songData.artist} DELETED successfully`
-                );
-                control === "music" ? getSongs() : getFavoriteSongs();
+                controlRender()
             })
             .catch((error) => {
                 failedNotification("Oops... Something went wrong");
@@ -127,6 +118,11 @@ export default function MusicCard({
     //Hiện moreButton và xử lý ClickOutside
     const moreButtonClickHandle = () => {
         setMoreButton((prev) => !prev);
+    };
+
+    const infoButtonClickHandle = () => {
+        setSongInfo(true);
+        setMoreButton(false);
     };
 
     React.useEffect(() => {
@@ -140,7 +136,6 @@ export default function MusicCard({
             document.removeEventListener("mousedown", handler);
         };
     }, []);
-    //
 
     return (
         <div
@@ -157,7 +152,7 @@ export default function MusicCard({
                 <div
                     className="play"
                     onClick={() => setPlaySong(songData)}
-                    style={{ display: moreButton ? "none" : "" }}
+                    style={{ display: moreButton ? "none" : "" }}// Không Hiện nút play khi có more button
                 >
                     <FontAwesomeIcon icon={faPlay} />
                 </div>
@@ -172,6 +167,9 @@ export default function MusicCard({
                 {moreButton && (
                     <div className="popup-option">
                         <ul>
+                            <li onClick={infoButtonClickHandle}>
+                                <FontAwesomeIcon icon={faCircleInfo} />
+                            </li>
                             <li
                                 onClick={() =>
                                     handleFavoriteToggle(
@@ -184,11 +182,13 @@ export default function MusicCard({
                                     icon={faHeart}
                                     style={{
                                         color: songData.favorite ? "red" : "",
-                                        filter: "drop-shadow(0 0 5px red)",
+                                        filter: songData.favorite
+                                            ? "drop-shadow(0 0 5px red)"
+                                            : "",
                                     }}
                                 />
                             </li>
-                            <li onClick={() => handleDeleteSong(songData._id)}>
+                            <li onClick={() => setDeletePopup(true)}>
                                 <FontAwesomeIcon icon={faTrash} />
                             </li>
                             <li onClick={() => handleFileDownload(songData)}>
@@ -201,6 +201,17 @@ export default function MusicCard({
             </div>
             <p className="name">{songData.name}</p>
             <p className="artist">{songData.artist}</p>
+            <MusicInfo
+                songData={songData}
+                songInfo={songInfo}
+                setSongInfo={setSongInfo}
+            />
+            <DeletePopup
+                songData={songData}
+                controlRender={controlRender}
+                deletePopup ={deletePopup}
+                setDeletePopup ={setDeletePopup}
+            />
         </div>
     );
 }

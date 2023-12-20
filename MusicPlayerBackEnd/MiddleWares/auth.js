@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'asdf1234';
+require('dotenv').config()
 
 const authenticationMiddleware = (req,res,next) =>{
     const authorizeHeader = req.headers.authorization;
@@ -9,7 +9,7 @@ const authenticationMiddleware = (req,res,next) =>{
     const token = authorizeHeader.split(' ')[1];
 
     try{
-        const decoded = jwt.verify(token,JWT_SECRET);
+        const decoded = jwt.verify(token,process.env.JWT_SECRET);
         const {id,username} = decoded;
         req.user ={id,username};
         next();
