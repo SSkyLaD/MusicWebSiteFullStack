@@ -119,9 +119,9 @@ nhấn icon volume để mute và unmute
 
 Giờ search sẽ ra match của cả songname và artist
 
-!!!TODO: Remake database music để làm phần song info ở frontend(DONE)
-!!!TODO tìm hiểu hls và chia nhỏ file nhạc để tối ưu streaming 
-!!!TODO Gộp staticFileServer với ResAPI server + Authenticate static file server(half-done)
+!!!TODO: Remake database music để làm phần song info ở frontend(DONE) 12/17
+!!!TODO tìm hiểu hls và chia nhỏ file nhạc để tối ưu streaming (coi như DONE) 12/21
+!!!TODO Gộp staticFileServer với ResAPI server + Authenticate static file server(DONE) 12/21
 
 Với việc up 30 bài tốn 1.47Mb document => limit mỗi người 250 bài (chủ yếu tốn do lưu ảnh dạng base64 vào document)
 
@@ -137,8 +137,18 @@ Tạo api/v1/users/songs/downdload
 
 2023/12/18
 Done phần info popup (position: fix , 100vh 100vw)
+
 2023/12/19
 Test web chạy ổn với môi trường fast 3G (1.3Mbps)
 Gộp server static và server backend,
 Thêm cors origin cho backend => tăng bảo mật
 chưa giải quyết được authenticate server static
+
+2023/12/21
+Done api stream nhạc( chưa hiểu rõ nó chạy như nào) + bảo mật api không dùng authenticate (cũng chưa hiểu các mã hóa lắm ) 
+nhưng chạy được :v
+Done home playqueue( có thể tương tác)
+Load queue thông qua search
+
+2023/12/21
+BUG: Một số bài hát bị lỗi khi load được 1 khoảng(dừng chơi)

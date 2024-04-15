@@ -3,7 +3,7 @@ const {
     getUserData,
     deleteUser,
     getUserSongs,
-    getUserSong,
+    playUserSong,
     deleteUserSong,
     updateUserSong,
     getUserFavoriteSongs,
@@ -12,6 +12,7 @@ const {
 const { uploadUserSongs } = require("../Controllers/user");
 const { upload } = require("../MiddleWares/uploadSongsConfig");
 const { authenticationMiddleware } = require("../MiddleWares/auth");
+const {songLimitCheck}= require('../MiddleWares/songLimitCheck');
 const router = express.Router();
 
 router
@@ -20,7 +21,7 @@ router
     .get(authenticationMiddleware, getUserData);
 router
     .route("/songs")
-    .post(authenticationMiddleware, upload.single("file"), uploadUserSongs)
+    .post(authenticationMiddleware,songLimitCheck, upload.single("file"), uploadUserSongs)
     .get(authenticationMiddleware, getUserSongs);
 router
     .route("/songs/favorites")
@@ -28,7 +29,7 @@ router
 router
     .route("/songs/download/:id")
     .get(authenticationMiddleware, downloadUserSong);
-router.route("/songs/:id/:user").get(getUserSong);
+router.route("/songs/:id/:user").get(playUserSong);
 router
     .route("/songs/:id")
     .patch(authenticationMiddleware, updateUserSong)

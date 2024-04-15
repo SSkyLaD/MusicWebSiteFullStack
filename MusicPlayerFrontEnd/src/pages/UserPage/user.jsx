@@ -10,7 +10,7 @@ export const TokenContext = React.createContext();
 export default function UserPage() {
     const [mainComponent, setMainComponent] = React.useState(<Home />); // Điều khiển mainComponent
     const tracklist = React.useRef([]); //lưu tracklist khi được load từ mainComponent
-    const tracklistIndex = React.useRef(0); // lưu index tracklist đang chơi
+    const tracklistIndex = React.useRef(); // lưu index tracklist đang chơi
     // Playsong là bài hát hiện tại đang được play
     const [playSong, setPlaySong] = React.useState({
         _id: "",
@@ -23,6 +23,7 @@ export default function UserPage() {
     const handlePlayAll = (arr) => {
         if(arr && arr.length !== 0){
             tracklist.current = arr;
+            tracklistIndex.current =0;
             setPlaySong(tracklist.current[tracklistIndex.current]);
         }
     };

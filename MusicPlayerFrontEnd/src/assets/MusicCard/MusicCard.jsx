@@ -55,7 +55,7 @@ export default function MusicCard({
                 headers: {
                     Authorization: `Bearer ${tokenData.token}`,
                 },
-                responseType: "blob", // Corrected typo
+                responseType: "blob", 
             })
             .then((response) => {
                 const contentType = response.headers["content-type"];

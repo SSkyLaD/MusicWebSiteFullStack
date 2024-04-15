@@ -122,6 +122,7 @@ export default function Player() {
         setPlayerData((prev) => {
             return { ...prev, fulltimeInSec: songDurationInSec };
         });
+        play();
     }
 
     function handleTimeUpdate(event) {
@@ -190,7 +191,6 @@ export default function Player() {
             setPlayerData((prev) => {
                 return { ...prev, isPlayed: true };
             });
-            play()
         }
     }, [playSong]);
 

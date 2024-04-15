@@ -36,7 +36,7 @@ export default function Music() {
 
     const handleFileUpload = () => {
         if (!uploadtedFile) {
-            console.log("No file selected");
+            failedNotification("No file selected");
             return;
         }
 
@@ -72,11 +72,12 @@ export default function Music() {
     };
 
     let songlistHTML;
+    let songlistArr =[];
 
     if (songs) {
         const escapedInput = searchInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');// biến đổi các kí tự đặc biệt trong biểu thức chính quy vè dạng string
         const regEx = new RegExp(`\\b${escapedInput}`, "gi");
-        const songlistArr = songs.filter(
+        songlistArr = songs.filter(
             (song) => regEx.test(song.name) || regEx.test(song.artist)
         );
         songlistHTML = songlistArr.map((songData) => {
@@ -101,7 +102,7 @@ export default function Music() {
             <div className="top-bar">
                 <div className="top-left">
                     <h2>Discover your music</h2>
-                    <button onClick={() => handlePlayAll(songs)}>
+                    <button onClick={() => handlePlayAll(songlistArr)}>
                         <FontAwesomeIcon icon={faPlay} />
                         <p>Play all</p>
                     </button>

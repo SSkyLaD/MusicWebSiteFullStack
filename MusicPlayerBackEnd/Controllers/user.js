@@ -2,10 +2,9 @@ const { userData, userSongs, userPlaylists, Song } = require("../Models/user");
 require("dotenv").config();
 const { parseFile } = require("music-metadata");
 const bcrypt = require("bcrypt");
-const fs = require("fs").promises;
-const fsSync = require("fs");
+const fs = require("fs");
 const staticStorageUrl = process.env.STATIC_STORAGE;
-const CryptoJS = require('crypto-js');
+const CryptoJS = require("crypto-js");
 
 // Chưa test
 const deleteUser = async (req, res) => {
@@ -75,7 +74,6 @@ const getUserSongs = async (req, res) => {
     }
 };
 
-
 const uploadUserSongs = async (req, res) => {
     try {
         const { id } = req.user;
@@ -83,8 +81,11 @@ const uploadUserSongs = async (req, res) => {
         if (req.fileValidationError) {
             return res.status(400).json(req.fileValidationError);
         }
-
-        const newSong = {}
+        const userSongsData = await userSongs.findOne({ owner: id });
+        if (!userSongsData) {
+            return res.status(404).json({ msg: "cannot find user songs data" });
+        }
+        const newSong = {};
 
         const replaceRex = new RegExp(".mp3|.flac");
         const filenameSplited = filename.split("-");
@@ -101,20 +102,22 @@ const uploadUserSongs = async (req, res) => {
 
         //get metadata
         const metadata = await parseFile(path);
-        newSong.name = metadata.common.title ? metadata.common.title : primaryTitle;
-        newSong.artist = metadata.common.artist ? metadata.common.artist : primaryArtist;
+        newSong.name = metadata.common.title
+            ? metadata.common.title
+            : primaryTitle;
+        newSong.artist = metadata.common.artist
+            ? metadata.common.artist
+            : primaryArtist;
         newSong.album = metadata.common.album ? metadata.common.album : "";
-        newSong.duration = metadata.format.duration ? Math.round(metadata.format.duration) : "";
+        newSong.duration = metadata.format.duration
+            ? Math.round(metadata.format.duration)
+            : "";
         newSong.year = metadata.common.year ? metadata.common.year : "";
-        if(metadata.common.picture){
+        if (metadata.common.picture) {
             const imageFormat = metadata.common.picture[0].format;
-            const base64Image = metadata.common.picture[0].data.toString('base64');
+            const base64Image =
+                metadata.common.picture[0].data.toString("base64");
             newSong.albumImageBase64 = `data:${imageFormat};base64,${base64Image}`;
-        }
-
-        const userSongsData = await userSongs.findOne({ owner: id });
-        if (!userSongsData) {
-            return res.status(404).json({ msg: "cannot find user songs data" });
         }
 
         const song = await Song.create(newSong);
@@ -129,44 +132,66 @@ const uploadUserSongs = async (req, res) => {
 };
 
 //WTFISTHIS
-const getUserSong = async (req,res) =>{
-    try{
+const playUserSong = async (req, res) => {
+    try {
         //
-        const { id:songId, user:encryptedUsername } = req.params;
-        username = CryptoJS.enc.Utf8.stringify(CryptoJS.enc.Base64.parse(encryptedUsername))
+        const { id: songId, user: encryptedUsername } = req.params;
+        username = CryptoJS.enc.Utf8.stringify(
+            CryptoJS.enc.Base64.parse(encryptedUsername)
+        );
         //
         const song = await Song.findById(songId);
-        if(!song){
+        if (!song) {
             return res.status(404).json({ msg: "cannot find user song" });
         }
         const staticSongPath =
-        staticStorageUrl + "/" + username + "/" + song.filename;
+            staticStorageUrl + "/" + username + "/" + song.filename;
 
-        const stat = fsSync.statSync(staticSongPath);
+        const stat = fs.statSync(staticSongPath);
+
         const total = stat.size;
 
         const range = req.headers.range;
-        const parts = range.replace(/bytes=/, '').split('-');
+        const parts = range.replace(/bytes=/, "").split("-");
         const partialStart = parts[0];
         const partialEnd = parts[1];
 
         const start = parseInt(partialStart, 10);
         const end = partialEnd ? parseInt(partialEnd, 10) : total - 1;
-        const chunksize = (end - start) + 1;
-        const rstream = fsSync.createReadStream(staticSongPath, {start: start, end: end});
+        const chunksize = end - start + 1;
+        const rstream = fs.createReadStream(staticSongPath, {
+            start: start,
+            end: end,
+        });
 
         res.writeHead(206, {
-            'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
-            'Accept-Ranges': 'bytes', 'Content-Length': chunksize,
-            'Content-Type': 'audio/flac'
+            "Content-Range": "bytes " + start + "-" + end + "/" + total,
+            "Accept-Ranges": "bytes",
+            "Content-Length": chunksize,
         });
         rstream.pipe(res);
-    }
-    catch(err){
-        console.log(err)
+
+        // const range = req.headers.range;
+        // const fileSize = stat.size;
+        // const chunkSize = 1024 * 1024;
+        // const start = Number(range.replace(/\D/g, ""));
+        // const end = Math.min(start + chunkSize, fileSize - 1);
+
+        // const headers = {
+        //     "Content-Type": "audio/*",
+        //     "Content-Length": end - start,
+        //     "Content-Range": "bytes " + start + "-" + end + "/" + fileSize,
+        //     "Accept-Ranges": "bytes",
+        // };
+
+        // res.writeHead(206, headers);
+        // const fileStream = fs.createReadStream(staticSongPath, { start, end });
+        //fileStream.pipe(res)
+    } catch (err) {
+        console.log(err);
         res.status(500).json({ msg: err });
     }
-}
+};
 //
 
 const deleteUserSong = async (req, res) => {
@@ -182,7 +207,7 @@ const deleteUserSong = async (req, res) => {
         const song = await Song.findByIdAndDelete(songId);
         const staticSongPath =
             staticStorageUrl + "/" + username + "/" + song.filename;
-        await fs.unlink(staticSongPath);
+        await fs.promises.unlink(staticSongPath);
         res.status(200).json({ msg: "delete successfully" });
     } catch (error) {
         res.status(500).json({ msg: error });
@@ -192,11 +217,13 @@ const deleteUserSong = async (req, res) => {
 const getUserFavoriteSongs = async (req, res) => {
     try {
         const { id } = req.user;
-        const userSongsData = await userSongs.findOne({ owner: id }).populate("songs");
+        const userSongsData = await userSongs
+            .findOne({ owner: id })
+            .populate("songs");
         if (!userSongsData) {
             return res.status(404).json({ msg: "Cannot find user songs data" });
         }
-        
+
         const favoriteSongs = userSongsData.songs.filter(
             (song) => song.favorite === true
         );
@@ -231,9 +258,11 @@ const updateUserSong = async (req, res) => {
 const downloadUserSong = async (req, res) => {
     try {
         const { id, username } = req.user;
-        console.log(id,username);
+        console.log(id, username);
         const { id: songId } = req.params;
-        const userSongsData = await userSongs.findOne({ owner: id }).populate("songs");
+        const userSongsData = await userSongs
+            .findOne({ owner: id })
+            .populate("songs");
         if (!userSongsData) {
             return res.status(404).json({ msg: "Cannot find user songs data" });
         }
@@ -253,7 +282,7 @@ module.exports = {
     deleteUser,
     getUserSongs,
     uploadUserSongs,
-    getUserSong,
+    playUserSong,
     deleteUserSong,
     updateUserSong,
     getUserFavoriteSongs,

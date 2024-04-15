@@ -11,9 +11,9 @@ const songSchema = new mongoose.Schema({
         required: true,
         default: defaultAlbumImageBase64,
     },
-    album :{type : String,require: true, default: "Unknown"},
-    year :{type : String,require : true, default :"Uknown"},
-    duration: {type : Number ,require : true, default :"Uknown"},
+    album: { type: String, require: true, default: "Unknown" },
+    year: { type: String, require: true, default: "Uknown" },
+    duration: { type: Number, require: true, default: "Uknown" },
     favorite: { type: Boolean, require: true, default: false },
 });
 
@@ -24,7 +24,7 @@ const userDataSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please provide username"],
         minlength: 3,
-        maxlength: 50,
+        maxlength: 20,
     },
     email: {
         type: String,
@@ -36,19 +36,13 @@ const userDataSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "please provide password"],
-        minlength: 3,
+        minlength: 5,
     },
     createDate: {
         type: Date,
         required: true,
         default: Date.now,
     },
-    mostFavorites: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Song",
-        },
-    ],
 });
 
 const userSongSchema = new mongoose.Schema({
